@@ -1,0 +1,26 @@
+node{
+    stage('Git') {
+        git branch: 'master', credentialsId: '467faaff-9046-4a83-8818-283108bc7434', url: 'http://192.168.42.19/gaoxw/jenkins-demo.git'
+    }
+    stage('build') {
+        sh 'chmod 777 /media/raid/jenkins/workspace/projectDemo/gradlew;/media/raid/jenkins/workspace/projectDemo/gradlew clean build'
+    }
+    stage('Image Build') {
+        sshPublisher(publishers: [sshPublisherDesc(configName: 'jenkins-demo', transfers: [sshTransfer(excludes: '', execCommand: ''' cd /opt/platform/basic;
+        docker build -t kylincloud2.hub/kube-system/jenkins-demo:k8s .;''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: 'build/libs/', sourceFiles: 'build/libs/demo-0.0.1-SNAPSHOT.jar')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+    }
+    stage('Deploy') {
+        sshPublisher(publishers: [sshPublisherDesc(configName: 'apistore', transfers: [sshTransfer(excludes: '', execCommand: '''cd /opt/platform/basic;
+        docker push kylincloud2.hub/kube-system/jenkins-demo:k8s
+        kubectl delete -f jenkins-deployment.yaml -n platform;
+        sleep 15;
+		kubectl apply -f jenkins-deployment.yaml -n platform;
+		''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: 'build/libs/', sourceFiles: 'build/libs/demo-0.0.1-SNAPSHOT.jar')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+    }
+    stage('mkdir') {
+            sshPublisher(publishers: [sshPublisherDesc(configName: 'apistore', transfers: [sshTransfer(excludes: '', execCommand: '''cd /opt/platform/basic;
+            docker push kylincloud2.hub/kube-system/jenkins-demo:k8s
+
+        }
+
+}
