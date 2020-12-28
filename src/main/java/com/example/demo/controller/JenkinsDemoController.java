@@ -10,6 +10,6 @@ public class JenkinsDemoController {
 
     @RequestMapping(value = "/test",method = RequestMethod.GET)
     public String jenkinsTest(){
-        return "Hello,Jenkins-demo";
+        return "Hello,Jenkins-demo2";
     }
 }
